@@ -12,7 +12,7 @@ class TDQL:
 
     qPath = 'qtable.txt'
 
-    numCards = 3
+    numCards = 11
 
     #Hyperparameters
     alpha = 0.10
@@ -23,7 +23,7 @@ class TDQL:
     epsilon = 0.1
 
     #Q is a dict in form (state, action) : (qValue, timesExplored)
-    #State is ([sorted card list], numMelds, value)
+    #State is ([sorted card list], numMelds, cardsLeft)
     Q = {}
     actions = []
 
@@ -39,8 +39,8 @@ class TDQL:
         iter = 0
         for hand in combinations(self.stock.possibleCards,len(self.actions)):
             #This is all info about the hand so it is unique to each state but crucial for rewards
-            melds, _, value = deadwood.compute_deadwood(hand)
-            state = (hand, len(melds), value)
+            melds, dw, _ = deadwood.compute_deadwood(hand)
+            state = (hand, len(melds), len(dw))
 
             iter += 1
             print(f"hand : {iter}")
@@ -87,10 +87,12 @@ class TDQL:
         return a
     
     def reward(self, state):
-        #State is in form ([list of cards], numMelds, value)
+        #State is in form ([list of cards], numMelds, cardsLeft)
 
         #Win state
-        if state[2] == 0:
+        #This can be 0 or 1 since we have 11 cards but only 10 need to fit since 1 gets thrown away
+        #Fun fact: 11 card gin is called GunYang in SoCal (Pronounced Goon-yong)
+        if state[2] in (0,1):
             return 10
         
         if state[1] == 3:
