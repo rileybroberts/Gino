@@ -1,6 +1,9 @@
 import deck
 import deadwood
 
+#TODO: Check running time of algorithm WITHOUT including number of cards left.
+#      If it is good enough think about implementing number of cards left
+
 class TDQL:
 
     #Hyperparameters
@@ -12,9 +15,12 @@ class TDQL:
     epsilon = 0.1
 
     #Q is a dict in form (state, action) : (qValue, timesExplored)
+    #State is a sorted list of cards
     Q = {}
     
     moves = [0,1,2,3,4,5,6,7,8,9,10]
+
+    stock = deck.Deck()
 
     #Exploration / Exploitation Policy
     def policy(self, state):
@@ -45,13 +51,24 @@ class TDQL:
 
         return a
     
-t = TDQL()
-t.Q = {
-    ("s1", 0) : (4, 12),
-    ("s1", 1) : (3, 12),
-    ("s2", 1) : (1, 1)
-}
-print(t.policy(("s1")))
+    def reward(self, state):
+        melds, dw, value = deadwood.compute_deadwood(state)
+
+        #Win state
+        if value == 0:
+            return 10
+        
+        if len(melds) == 3:
+            return -1
+        
+        if len(melds) == 2:
+            return -2
+        
+        if len(melds) == 1:
+            return -3
+        
+        else:
+            return -4
     
 
 
