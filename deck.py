@@ -5,19 +5,18 @@ class Deck:
     cardStack = []
     possibleCards = []
 
-    
-
     def __init__(self):
-        self.freshDeck()
-        possibleCards = self.cardStack.copy()
+        self.newDeck()
+        self.possibleCards = self.cardStack.copy()
+        self.possibleCards.sort()
 
     #Creates a fresh deck of shuffled cards
     def newDeck(self):
-        cardStack = []
+        self.cardStack = []
         #Removing a suit (D) for scaling reasons
-        for suit in ("S","C","H"):
+        for suit in ("S","H","C"):
             #No face cards for scaling reasons
-            for value in ("2","3","4","5","6","7","8","9","10","A"):
+            for value in ("2","3","4","5","6","7","8"):
                 self.cardStack.append(value+ suit)
 
         return self.cardStack    
