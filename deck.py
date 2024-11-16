@@ -35,3 +35,6 @@ class Deck:
     #Deals the top card off the deck
     def dealCard(self):
         return self.cardStack.pop()
+    
+    def cardsLeft(self):
+        return len(self.cardStack)
