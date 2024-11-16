@@ -139,7 +139,7 @@ def compute_deadwood(cards: List[str]) -> Tuple[List[List[str]], List[str], int]
 
 # Optional: Example usage
 if __name__ == "__main__":
-    sample_hand = ['AC', '2C', '3C', '4C', '5C', '6C', '7C', '8C', '9C', '10C']
+    sample_hand = ['1C', 'AD', 'AS', '4C', '5C', '6C', '7C', 'QD', '10H', '4H']
     try:
         melds, deadwood, value = compute_deadwood(sample_hand)
         print("Optimal melds:")
