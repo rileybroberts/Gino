@@ -1,10 +1,18 @@
 import deck
 import deadwood
+from itertools import combinations
+import time
+import json
+import ast
 
 #TODO: Check running time of algorithm WITHOUT including number of cards left.
 #      If it is good enough think about implementing number of cards left
 
 class TDQL:
+
+    qPath = 'qtable.txt'
+
+    numCards = 3
 
     #Hyperparameters
     alpha = 0.10
@@ -15,12 +23,39 @@ class TDQL:
     epsilon = 0.1
 
     #Q is a dict in form (state, action) : (qValue, timesExplored)
-    #State is a sorted list of cards
+    #State is ([sorted card list], numMelds, value)
     Q = {}
-    
-    moves = [0,1,2,3,4,5,6,7,8,9,10]
+    actions = []
 
     stock = deck.Deck()
+
+    def __init__(self):
+        for i in range(self.numCards):
+            self.actions.append(i)
+
+    def initQTable(self):
+        startTime = time.time()
+        self.stock = deck.Deck()
+        iter = 0
+        for hand in combinations(self.stock.possibleCards,len(self.actions)):
+            #This is all info about the hand so it is unique to each state but crucial for rewards
+            melds, _, value = deadwood.compute_deadwood(hand)
+            state = (hand, len(melds), value)
+
+            iter += 1
+            print(f"hand : {iter}")
+            for action in self.actions:
+                self.Q[(state, action)] = (self.reward(state), 0)
+
+        with open(self.qPath, 'w') as f:  
+            for key, value in self.Q.items():  
+                f.write('%s:%s\n' % (key, value))
+
+        print(self.stock.possibleCards)
+        print(len(self.actions))
+        print(f"actions:{self.actions}")
+        print(len(self.Q))
+        print(time.time()-startTime)
 
     #Exploration / Exploitation Policy
     def policy(self, state):
@@ -36,7 +71,7 @@ class TDQL:
         min_n = self.N_E
         min_a = 0
 
-        for m in self.moves:
+        for m in self.actions:
             if self.Q.get((state,m))[1] < min_n:
                 min_n = self.Q.get((state,m))[1]
                 min_a = m
@@ -46,29 +81,48 @@ class TDQL:
             return min_a
 
         #Get action with max Q value
-        action_q_values = [(self.Q.get((state, m)), m) for m in self.moves]
+        action_q_values = [(self.Q.get((state, m)), m) for m in self.actions]
         _, a = max(action_q_values, key=lambda x: x[0])
 
         return a
     
     def reward(self, state):
-        melds, dw, value = deadwood.compute_deadwood(state)
+        #State is in form ([list of cards], numMelds, value)
 
         #Win state
-        if value == 0:
+        if state[2] == 0:
             return 10
         
-        if len(melds) == 3:
+        if state[1] == 3:
             return -1
         
-        if len(melds) == 2:
+        if state[1] == 2:
             return -2
         
-        if len(melds) == 1:
+        if state[1] == 1:
             return -3
         
         else:
             return -4
+        
+    def qvalue(self, state, action):
+        return self.get((state,action))[0]
     
-
+    #Reads current Q table in from file
+    def readQTable(self):
+        self.Q = {}
+        with open(self.qPath, 'r') as f:
+            for line_number, line in enumerate(f, 1):
+                line = line.strip()
+                try:
+                    key_str, value_str = line.split(':', 1)  # Split only at the first colon
+                    key = ast.literal_eval(key_str)
+                    value = ast.literal_eval(value_str)
+                    self.Q[key] = value
+                except (ValueError, SyntaxError) as e:
+                    print(f"Error parsing line {line_number}: {line}")
+                    print(f"Exception: {e}")
+    
+t = TDQL()
+t.initQTable()
 
