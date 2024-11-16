@@ -85,8 +85,8 @@ def get_best_combination(melds: List[List[str]]) -> Tuple[int, List[List[str]]]:
     return best_leaf.deadwood, best_melds
 
 def compute_deadwood(cards: List[str]) -> Tuple[List[List[str]], List[str], int]:
-    if len(cards) != 10:
-        raise ValueError("Exactly 10 cards are required.")
+    # if len(cards) != 10:
+    #     raise ValueError("Exactly 10 cards are required.")
     
     for c in cards:
         if not valid_card(c):
@@ -139,7 +139,7 @@ def compute_deadwood(cards: List[str]) -> Tuple[List[List[str]], List[str], int]
 
 # Optional: Example usage
 if __name__ == "__main__":
-    sample_hand = ['1C', 'AD', 'AS', '4C', '5C', '6C', '7C', 'QD', '10H', '4H']
+    sample_hand = ['AC', '2C', '3C', '4C', 'JC']
     try:
         melds, deadwood, value = compute_deadwood(sample_hand)
         print("Optimal melds:")
