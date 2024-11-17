@@ -95,17 +95,8 @@ class TDQL:
         if state[2] in (0,1):
             return 10
         
-        if state[1] == 3:
-            return -1
-        
-        if state[1] == 2:
-            return -2
-        
-        if state[1] == 1:
-            return -3
-        
-        else:
-            return -4
+        #The less melds it has the worse its reward (-1,-4)
+        return state[1] - 4
         
     def qvalue(self, state, action):
         return self.get((state,action))[0]
