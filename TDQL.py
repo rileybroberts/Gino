@@ -48,6 +48,8 @@ class TDQL:
             for c in range(self.numCards):
                 state.append(stock.dealCard())
 
+            state.sort()
+
             reward = self.reward(state)
 
             print(f"state: {state}")
@@ -118,6 +120,7 @@ class TDQL:
 
         min_n = self.N_E
         min_a = 0
+        state = tuple(state)
 
         for m in self.actions:
             if self.Q.get((state,m))[1] < min_n:
@@ -141,6 +144,9 @@ class TDQL:
         #Win state
         #This can be 0 or 1 since we have 11 cards but only 10 need to fit since 1 gets thrown away
         #Fun fact: 11 card gin is called GunYang in SoCal (Pronounced Goon-yong)
+        state = tuple(state)
+        print(state)
+        print(self.Q.get((state,0)))
         if self.Q.get((state,0))[3] in (0,1):
             return 10
         
@@ -148,6 +154,7 @@ class TDQL:
         return self.Q.get((state,0))[2] - 4
         
     def qvalue(self, state, action):
+        state = tuple(state)
         return self.get((state,action))[0]
     
     #Reads current Q table in from file
