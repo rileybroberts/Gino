@@ -12,7 +12,7 @@ class TDQL:
 
     qPath = 'qtable.txt'
 
-    numCards = 11
+    numCards = 2
 
     #Hyperparameters
     alpha = 0.10
@@ -82,6 +82,7 @@ class TDQL:
             #This is all info about the hand so it is unique to each state but crucial for rewards
             melds, dw, _ = deadwood.compute_deadwood(hand)
             state = hand
+            print(state)
 
             iter += 1
             print(f"hand : {iter}")
@@ -94,9 +95,9 @@ class TDQL:
                     self.Q[(state, action)] = (len(melds)-4, 0, len(melds), len(dw))
                 
 
-        with open(self.qPath, 'w') as f:  
-            for key, value in self.Q.items():  
-                f.write('%s:%s\n' % (key, value))
+        # with open(self.qPath, 'w') as f:  
+        #     for key, value in self.Q.items():  
+        #         f.write('%s:%s\n' % (key, value))
 
         print(self.stock.possibleCards)
         print(len(self.actions))
@@ -140,11 +141,11 @@ class TDQL:
         #Win state
         #This can be 0 or 1 since we have 11 cards but only 10 need to fit since 1 gets thrown away
         #Fun fact: 11 card gin is called GunYang in SoCal (Pronounced Goon-yong)
-        if self.Q.get(state,0)[3] in (0,1):
+        if self.Q.get((state,0))[3] in (0,1):
             return 10
         
         #The less melds it has the worse its reward (-1,-4)
-        return self.Q.get(state,0)[2] - 4
+        return self.Q.get((state,0))[2] - 4
         
     def qvalue(self, state, action):
         return self.get((state,action))[0]
@@ -154,12 +155,23 @@ class TDQL:
         self.Q = {}
         with open(self.qPath, 'r') as f:
             for line_number, line in enumerate(f, 1):
+                print(f"line: {line_number}")
                 line = line.strip()
+                if not line:
+                    continue  # Skip empty lines
                 try:
-                    key_str, value_str = line.split(':', 1)  # Split only at the first colon
+                    # Split the line at the first colon to separate key and value
+                    key_str, value_str = line.split(':', 1)
+                    key_str = key_str.strip()
+                    value_str = value_str.strip()
+
+                    # Evaluate the key and value strings
                     key = ast.literal_eval(key_str)
                     value = ast.literal_eval(value_str)
+
+                    # Store the parsed data into the Q-table
                     self.Q[key] = value
+
                 except (ValueError, SyntaxError) as e:
                     print(f"Error parsing line {line_number}: {line}")
                     print(f"Exception: {e}")
