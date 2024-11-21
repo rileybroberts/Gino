@@ -37,6 +37,7 @@ class TDQL:
         currIterations = 0
 
         while converged == False and currIterations < numEpisodes:
+            print("Loop!")
             currIterations += 1
             converged = True
 
@@ -52,42 +53,38 @@ class TDQL:
 
             reward = self.reward(state)
 
-            print(f"state: {state}")
-            print(f"reward: {reward}")
+            while reward != 10 and stock.cardsLeft() > 1:
+                action = self.policy(state)
+                state = list(state)
 
-            #Run through training until
-            # while reward != 10 and self.stock.cardsLeft > 1:
-            #     action = self.policy(state)
+                nextState = state.copy()
+                del nextState[action]               #Discards card according to action
+                nextState.append(stock.dealCard())  #Deals new card
+                nextState.sort()                    #Sorts hand so order doesn't matter
+                nextState = tuple(nextState)
+                state = tuple(state)
 
-            #     nextState = state.remove[]          #Discards card according to action
-            #     nextState.append(stock.dealCard())  #Deals new card
-            #     nextState.sort()                    #Sorts hand so order doesn't matter
+                #This next bit is the Q learning function broken down
+                maxNextQ = max(self.Q.get((nextState, a)) for a in self.actions)
+                maxNextQ = maxNextQ[0]
+                oldTuple = self.Q[(state,action)]
+                self.Q[(state, action)] = (oldTuple[0] + self.alpha * ( reward + self.gamma * float(maxNextQ) - oldTuple[0]),  oldTuple[1] + 1, oldTuple[2], oldTuple[3])
 
-            #     #This next bit is the Q learning function broken down
-            #     maxNextQ = max(self.Q.get((nextState, m)) for m in self.moves.get(nextState[0]))
-            #     oldQ = self.Q[(state,action)]
-            #     self.Q[(state, action)] += self.alpha * ( reward + self.gamma * float(maxNextQ) - oldQ)
-
-            #     #Check if still converging
-            #     if abs(self.Q[(state,action)] - oldQ) > 0.005:
-            #         converged = False
+                #Check if still converging
+                if abs(self.Q[(state,action)][0] - oldTuple[0]) > 0.005:
+                    converged = False
             
-            print(currIterations)
+            print(f"End of training iteration: {currIterations}")
             if converged:
                 print("Holy shit we did it its converged")
 
     def initQTable(self):
         startTime = time.time()
         self.stock = deck.Deck()
-        iter = 0
         for hand in combinations(self.stock.possibleCards,len(self.actions)):
             #This is all info about the hand so it is unique to each state but crucial for rewards
             melds, dw, _ = deadwood.compute_deadwood(hand)
             state = hand
-            print(state)
-
-            iter += 1
-            print(f"hand : {iter}")
             for action in self.actions:
                 #Necessary to build mini reward function here as opposed to calling
                 #Otherwise we would need deadwood dict, doubling size
@@ -97,15 +94,15 @@ class TDQL:
                     self.Q[(state, action)] = (len(melds)-4, 0, len(melds), len(dw))
                 
 
-        # with open(self.qPath, 'w') as f:  
-        #     for key, value in self.Q.items():  
-        #         f.write('%s:%s\n' % (key, value))
+        with open(self.qPath, 'w') as f:  
+            for key, value in self.Q.items():  
+                f.write('%s:%s\n' % (key, value))
 
-        print(self.stock.possibleCards)
-        print(len(self.actions))
-        print(f"actions:{self.actions}")
-        print(len(self.Q))
-        print(time.time()-startTime)
+        # print(self.stock.possibleCards)
+        # print(len(self.actions))
+        # print(f"actions:{self.actions}")
+        # print(len(self.Q))
+        # print(time.time()-startTime)
 
     #Exploration / Exploitation Policy
     def policy(self, state):
@@ -145,8 +142,6 @@ class TDQL:
         #This can be 0 or 1 since we have 11 cards but only 10 need to fit since 1 gets thrown away
         #Fun fact: 11 card gin is called GunYang in SoCal (Pronounced Goon-yong)
         state = tuple(state)
-        print(state)
-        print(self.Q.get((state,0)))
         if self.Q.get((state,0))[3] in (0,1):
             return 10
         
