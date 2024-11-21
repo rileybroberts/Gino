@@ -37,7 +37,6 @@ class TDQL:
         currIterations = 0
 
         while converged == False and currIterations < numEpisodes:
-            print("Loop!")
             currIterations += 1
             converged = True
 
@@ -92,11 +91,6 @@ class TDQL:
                     self.Q[(state, action)] = (10, 0, len(melds), len(dw))
                 else:
                     self.Q[(state, action)] = (len(melds)-4, 0, len(melds), len(dw))
-                
-
-        with open(self.qPath, 'w') as f:  
-            for key, value in self.Q.items():  
-                f.write('%s:%s\n' % (key, value))
 
         # print(self.stock.possibleCards)
         # print(len(self.actions))
@@ -178,7 +172,13 @@ class TDQL:
                     print(f"Error parsing line {line_number}: {line}")
                     print(f"Exception: {e}")
     
+    def writeQTable(self):
+        with open(self.qPath, 'w') as f:  
+            for key, value in self.Q.items():  
+                f.write('%s:%s\n' % (key, value))
+
 t = TDQL()
 t.initQTable()
 t.train(2)
+t.writeQTable()
 
