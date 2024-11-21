@@ -32,6 +32,7 @@ class TDQL:
         for i in range(self.numCards):
             self.actions.append(i)
 
+    #TODO: For some reason it is visiting the same state during each trial
     def train(self, numEpisodes):
         converged = False
         currIterations = 0
@@ -42,6 +43,7 @@ class TDQL:
 
             #New Deck
             stock = deck.Deck()
+            stock.shuffleDeck()
 
             #Deal numCards cards
             state = []
@@ -57,8 +59,10 @@ class TDQL:
                 state = list(state)
 
                 nextState = state.copy()
+                print(f"nextState before throw: {nextState}")
                 del nextState[action]               #Discards card according to action
-                nextState.append(stock.dealCard())  #Deals new card
+                print(f"nextState after throw: {nextState}")
+                nextState.append(stock.dealCard())  #Deals new card TODO: Why is this always dealing the same card???
                 nextState.sort()                    #Sorts hand so order doesn't matter
                 nextState = tuple(nextState)
                 state = tuple(state)
