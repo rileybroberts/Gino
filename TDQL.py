@@ -12,12 +12,16 @@ class TDQL:
 
     qPath = 'qtable.txt'
 
-    numCards = 2
+    numCards = 3
 
     #Hyperparameters
     alpha = 0.10
     gamma = 0.95
-    N_E = 11 #11 next possible actions, seems right, may be high due to scale
+    N_E = 11 #11 next possible actions, seems right, maybe high maybe way low
+
+    #TODO: Implement total rewards testing once trained
+    totalRewardsQL = 0
+    totalRewardsRandom = 0
 
     #epsilon not currently in use but may be implemented later
     epsilon = 0.1
@@ -31,15 +35,17 @@ class TDQL:
         #Initiates action array based on numCards
         for i in range(self.numCards):
             self.actions.append(i)
-
+        
     #TODO: For some reason it is visiting the same state during each trial
     def train(self, numEpisodes):
+        start = time.time()
         converged = False
         currIterations = 0
 
         while converged == False and currIterations < numEpisodes:
             currIterations += 1
-            converged = True
+            # converged = True
+            converged = False #TODO: Fix Convergence Check
 
             #New Deck
             stock = deck.Deck()
@@ -55,14 +61,16 @@ class TDQL:
             reward = self.reward(state)
 
             while reward != 10 and stock.cardsLeft() > 1:
+                reward = self.reward(state)
+                if (reward == 10):
+                    break
+
                 action = self.policy(state)
                 state = list(state)
 
                 nextState = state.copy()
-                print(f"nextState before throw: {nextState}")
                 del nextState[action]               #Discards card according to action
-                print(f"nextState after throw: {nextState}")
-                nextState.append(stock.dealCard())  #Deals new card TODO: Why is this always dealing the same card???
+                nextState.append(stock.dealCard())  #Deals new card 
                 nextState.sort()                    #Sorts hand so order doesn't matter
                 nextState = tuple(nextState)
                 state = tuple(state)
@@ -79,12 +87,13 @@ class TDQL:
 
                 state = nextState
             
-            print(f"End of training iteration: {currIterations}")
             if converged:
-                print("Holy shit we did it its converged")
+                print(f"Holy shit we did it its converged. It took {currIterations} iterations")
+        end = time.time()
+        print(f"training took {end - start} seconds")
 
     def initQTable(self):
-        startTime = time.time()
+        start = time.time()
         self.stock = deck.Deck()
         for hand in combinations(self.stock.possibleCards,len(self.actions)):
             #This is all info about the hand so it is unique to each state but crucial for rewards
@@ -98,11 +107,8 @@ class TDQL:
                 else:
                     self.Q[(state, action)] = (len(melds)-4, 0, len(melds), len(dw))
 
-        # print(self.stock.possibleCards)
-        # print(len(self.actions))
-        # print(f"actions:{self.actions}")
-        # print(len(self.Q))
-        # print(time.time()-startTime)
+        end = time.time()
+        print(f"Qinit took {end - start} seconds")
 
     #Exploration / Exploitation Policy
     def policy(self, state):
@@ -154,6 +160,7 @@ class TDQL:
     
     #Reads current Q table in from file
     def readQTable(self):
+        start = time.time()
         self.Q = {}
         with open(self.qPath, 'r') as f:
             for line_number, line in enumerate(f, 1):
@@ -177,14 +184,19 @@ class TDQL:
                 except (ValueError, SyntaxError) as e:
                     print(f"Error parsing line {line_number}: {line}")
                     print(f"Exception: {e}")
+        end = time.time()
+        print(f"Q read took {end-start} seconds")
     
     def writeQTable(self):
+        start = time.time()
         with open(self.qPath, 'w') as f:  
             for key, value in self.Q.items():  
                 f.write('%s:%s\n' % (key, value))
+        end = time.time()
+        print(f"writing Q table took {end - start} seconds")
 
 t = TDQL()
 t.initQTable()
-t.train(2)
+t.train(50000)
 t.writeQTable()
 
