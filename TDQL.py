@@ -4,7 +4,6 @@ from itertools import combinations
 import time
 import ast
 import random
-from random import randrange
 
 #TODO: Check running time of algorithm WITHOUT including number of cards left.
 #      If it is good enough think about implementing number of cards left
@@ -13,37 +12,36 @@ class TDQL:
 
     qPath = 'qtable.txt'
 
-    numCards = 3
+    numCards = 11
 
     #Hyperparameters
     alpha = 0.10
     gamma = 0.95
     N_E = 11 #11 next possible actions, seems right, maybe high maybe way low
+    epsilon = 0.1
 
     #TODO: Implement total rewards testing once trained
     totalRewardsQL = 0
     totalRewardsRandom = 0
 
-    #epsilon not currently in use but may be implemented later
-    epsilon = 0.1
-
     #Q is a dict in form (state, action) : (qValue, timesExplored, numMelds, cardsLeft)
     #State is ([sorted card list])
     Q = {}
     actions = []
+    trainingIterations = 0
 
     def __init__(self):
         #Initiates action array based on numCards
         for i in range(self.numCards):
             self.actions.append(i)
         
-    #TODO: For some reason it is visiting the same state during each trial
     def train(self, numEpisodes):
         start = time.time()
         converged = False
         currIterations = 0
 
         while converged == False and currIterations < numEpisodes:
+            self.trainingIterations += 1
             currIterations += 1
             # converged = True
             converged = False #TODO: Fix Convergence Check
@@ -137,7 +135,7 @@ class TDQL:
         
         #Chance for Greedy Epsilon to choose random action incase we are stuck in local minima
         if (random.random() < self.epsilon):
-            return randrange(self.numCards)
+            return random.randrange(self.numCards)
 
         #Otherwise get action with max Q value
         action_q_values = [(self.Q.get((state, m)), m) for m in self.actions]
@@ -168,7 +166,11 @@ class TDQL:
         start = time.time()
         self.Q = {}
         with open(self.qPath, 'r') as f:
-            for line_number, line in enumerate(f, 1):
+            #Reads timesTrained
+            first_line = f.readline().strip()
+            self.trainingIterations = int(first_line)
+
+            for line_number, line in enumerate(f, 2):
                 print(f"line: {line_number}")
                 line = line.strip()
                 if not line:
@@ -194,7 +196,8 @@ class TDQL:
     
     def writeQTable(self):
         start = time.time()
-        with open(self.qPath, 'w') as f:  
+        with open(self.qPath, 'w') as f:
+            f.write('%s\n' % self.trainingIterations)  
             for key, value in self.Q.items():  
                 f.write('%s:%s\n' % (key, value))
         end = time.time()
@@ -202,6 +205,7 @@ class TDQL:
 
 t = TDQL()
 t.initQTable()
-t.train(50000)
+t.train(500)
 t.writeQTable()
+print(t.trainingIterations)
 
