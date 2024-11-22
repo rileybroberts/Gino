@@ -2,8 +2,9 @@ import deck
 import deadwood
 from itertools import combinations
 import time
-import json
 import ast
+import random
+from random import randrange
 
 #TODO: Check running time of algorithm WITHOUT including number of cards left.
 #      If it is good enough think about implementing number of cards left
@@ -121,20 +122,24 @@ class TDQL:
         #We can just check to find min N(s,a).
         #If all s,a > N_E we can then do argmax Q(s,a)
 
-        min_n = self.N_E
-        min_a = 0
+        minNum = self.N_E
+        minAction = 0
         state = tuple(state)
 
         for m in self.actions:
-            if self.Q.get((state,m))[1] < min_n:
-                min_n = self.Q.get((state,m))[1]
-                min_a = m
+            if self.Q.get((state,m))[1] < minNum:
+                minNum = self.Q.get((state,m))[1]
+                minAction = m
 
-        #Only runs if N_E satisfied for all actions
-        if min_n != self.N_E:
-            return min_a
+        #If minNum isn't what we set it to that means something is below N_E and we do that action
+        if minNum != self.N_E:
+            return minAction
+        
+        #Chance for Greedy Epsilon to choose random action incase we are stuck in local minima
+        if (random.random() < self.epsilon):
+            return randrange(self.numCards)
 
-        #Get action with max Q value
+        #Otherwise get action with max Q value
         action_q_values = [(self.Q.get((state, m)), m) for m in self.actions]
         _, a = max(action_q_values, key=lambda x: x[0])
 
