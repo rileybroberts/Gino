@@ -76,6 +76,8 @@ class TDQL:
                 #Check if still converging
                 if abs(self.Q[(state,action)][0] - oldTuple[0]) > 0.005:
                     converged = False
+
+                state = nextState
             
             print(f"End of training iteration: {currIterations}")
             if converged:
