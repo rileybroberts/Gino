@@ -17,8 +17,9 @@ class TDQL:
     #Hyperparameters
     alpha = 0.10
     gamma = 0.95
-    N_E = 11 #11 next possible actions, seems right, maybe high maybe way low
     epsilon = 0.1
+    N_E = 11
+
 
     #TODO: Implement total rewards testing once trained
     totalRewardsQL = 0
@@ -171,7 +172,7 @@ class TDQL:
             self.trainingIterations = int(first_line)
 
             for line_number, line in enumerate(f, 2):
-                print(f"line: {line_number}")
+                # print(f"line: {line_number}")
                 line = line.strip()
                 if not line:
                     continue  # Skip empty lines
@@ -205,7 +206,7 @@ class TDQL:
 
 t = TDQL()
 t.initQTable()
-t.train(500)
+t.train(10000000)
 t.writeQTable()
 print(t.trainingIterations)
 
