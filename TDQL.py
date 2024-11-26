@@ -47,6 +47,8 @@ class TDQL:
             # converged = True
             converged = False #TODO: Fix Convergence Check
 
+            if ((currIterations * 100) % numEpisodes == 0): print(f"{(currIterations * 100) // numEpisodes}% trained")
+
             #New Deck
             stock = deck.Deck()
             stock.shuffleDeck()
@@ -102,7 +104,7 @@ class TDQL:
             for action in self.actions:
                 #Necessary to build mini reward function here as opposed to calling
                 #Otherwise we would need deadwood dict, doubling size
-                if len(dw) == 0:
+                if len(dw) in (0,1):
                     self.Q[(state, action)] = (10, 0, len(melds), len(dw))
                 else:
                     self.Q[(state, action)] = (len(melds)-4, 0, len(melds), len(dw))
@@ -205,8 +207,9 @@ class TDQL:
         print(f"writing Q table took {end - start} seconds")
 
 t = TDQL()
-t.initQTable()
-t.train(10000000)
+t.readQTable()
+#600000000 takes ~ 12 hours
+t.train(30000)
 t.writeQTable()
 print(t.trainingIterations)
 
