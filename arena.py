@@ -12,7 +12,7 @@ Todo List:
 
 class Arena:
 
-    def randomActor(numEpisodes):
+    def randomActor(self, numEpisodes):
         totalRewards = 0
         totalWins = float(0)
 
@@ -42,7 +42,7 @@ class Arena:
         winRate = totalWins / numEpisodes
         return totalRewards, winRate
     
-    def gino(numEpisodes):
+    def gino(self, numEpisodes):
         totalRewards = 0
         totalWins = float(0)
 
@@ -71,3 +71,12 @@ class Arena:
         
         winRate = totalWins / numEpisodes
         return totalRewards, winRate
+    
+    def battle(self, numEpisodes):
+        ginoRewards, ginoWinrate = self.gino(numEpisodes)
+        randoRewards, randoWinrate = self.randomActor(numEpisodes)
+
+        print(f"Gino --------- Total Rewards: {ginoRewards}")
+        print(f"Gino -------------- Win Rate: {ginoWinrate}")
+        print(f"Random Actor - Total Rewards: {randoRewards}")
+        print(f"Random Actor ------ Win Rate: {randoWinrate}")
