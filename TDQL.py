@@ -166,6 +166,7 @@ class TDQL:
     
     #Reads current Q table in from file
     def readQTable(self):
+        print("Reading in Q Table...")
         start = time.time()
         self.Q = {}
         with open(self.qPath, 'r') as f:
@@ -206,13 +207,13 @@ class TDQL:
         end = time.time()
         print(f"writing Q table took {end - start} seconds")
 
-t = TDQL()
-t.readQTable()
-#600000000 takes ~ 21 hours
-#300000000 takes ~ 11 hours
-#150000000 takes ~ 6 hours
-#75000000 takes ~ 3 hours
-t.train(600000000)
-t.writeQTable()
-print(t.trainingIterations)
+# t = TDQL()
+# t.readQTable()
+# #600000000 takes ~ 21 hours
+# #300000000 takes ~ 11 hours
+# #150000000 takes ~ 6 hours
+# #75000000 takes ~ 3 hours
+# t.train(600000000)
+# t.writeQTable()
+# print(t.trainingIterations)
 
