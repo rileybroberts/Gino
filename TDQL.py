@@ -208,8 +208,11 @@ class TDQL:
 
 t = TDQL()
 t.readQTable()
-#600000000 takes ~ 12 hours
-t.train(30000)
+#600000000 takes ~ 21 hours
+#300000000 takes ~ 11 hours
+#150000000 takes ~ 6 hours
+#75000000 takes ~ 3 hours
+t.train(600000000)
 t.writeQTable()
 print(t.trainingIterations)
 
