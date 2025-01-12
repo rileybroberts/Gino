@@ -125,6 +125,6 @@ class Arena:
 
 
 arena = Arena()
-arena.demo()
+# arena.demo()
 print("Battling Gino Against A Random Actor 10k Times...")
 arena.battle(100000)
